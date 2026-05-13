@@ -29,3 +29,38 @@ export const getAll = async (
     });
   }
 };
+
+//!get by id
+export const getbyid = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { id } = req.params;
+    //* get all users query
+    const user = await User.findOne({ _id: id });
+
+    //* user not found error
+    if (!user) {
+      const error: any = new Error("User not found");
+      error.statusCode = 404;
+      throw error;
+    }
+    //* success response
+    res.status(200).json({
+      message: `user ${id} Fetched`,
+      data: user,
+      success: true,
+      status: "success",
+    });
+  } catch (error: any) {
+    next({
+      message: error?.message || "Something went wrong",
+      status: "error",
+      success: "false",
+      data: null,
+      statusCode: error?.statusCode || 500,
+    });
+  }
+};

@@ -1,5 +1,5 @@
 import express from "express";
-import { getAll } from "../controllers/user.controller";
+import { getAll, getbyid } from "../controllers/user.controller";
 
 const router = express.Router();
 
@@ -7,5 +7,6 @@ const router = express.Router();
 router.get("/", getAll);
 
 //!get by id
+router.get("/:id", getbyid);
 
 export default router;

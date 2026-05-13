@@ -10,7 +10,7 @@ app.use(express.json({ limit: "10mb" }));
 //!using middlewares
 
 //!health route
-app.use("/", (req: Request, res: Response) => {
+app.get("/", (req: Request, res: Response) => {
   res.status(200).json({
     message: "server is up and running",
     success: true,
