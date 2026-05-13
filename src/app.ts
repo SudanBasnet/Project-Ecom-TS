@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import userRoutes from "./routes/user.routes";
+import { errorHandler } from "./middlewares/errorHandler.middleware";
 
 //!creating express app instance
 const app = express();
@@ -22,5 +23,6 @@ app.get("/", (req: Request, res: Response) => {
 app.use("/api/v1/users", userRoutes);
 
 //!error handler
+app.use(errorHandler);
 
 export default app;

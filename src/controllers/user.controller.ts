@@ -45,6 +45,7 @@ export const getbyid = async (
     if (!user) {
       const error: any = new Error("User not found");
       error.statusCode = 404;
+      error.status = "fail";
       throw error;
     }
     //* success response
@@ -57,8 +58,50 @@ export const getbyid = async (
   } catch (error: any) {
     next({
       message: error?.message || "Something went wrong",
-      status: "error",
+      status: error?.status || "error",
       success: "false",
+      data: null,
+      statusCode: error?.statusCode || 500,
+    });
+  }
+};
+
+//!del by id
+//! delete by id
+export const deleteById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { id } = req.params;
+
+    //* find user
+    const user = await User.findOne({ _id: id });
+
+    //* user not found
+    if (!user) {
+      const error: any = new Error("User not found");
+      error.statusCode = 404;
+      error.status = "fail";
+      throw error;
+    }
+
+    //* delete user
+    await user.deleteOne();
+
+    //* success response
+    res.status(200).json({
+      message: `User ${id} deleted`,
+      data: user,
+      success: true,
+      status: "success",
+    });
+  } catch (error: any) {
+    next({
+      message: error?.message || "Something went wrong",
+      status: error?.status || "error",
+      success: false,
       data: null,
       statusCode: error?.statusCode || 500,
     });
