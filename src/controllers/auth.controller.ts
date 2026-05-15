@@ -1,123 +1,79 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, RequestHandler, Response } from "express";
 import User from "../models/user.model";
+import AppError from "../utils/appError.utils";
+import { sendResponse } from "../utils/sendResponse.utils";
+import { catchAsync } from "../utils/catchAsync.utils";
 
-//!register
-export const register = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    const { full_name, email, password, phone } = req.body;
-    if (!full_name) {
-      const error: any = new Error("full_name is required");
-      error.statusCode = 400;
-      error.status = "fail";
-      throw error;
-    }
-    if (!email) {
-      const error: any = new Error("Email is required");
-      error.statusCode = 400;
-      error.status = "fail";
-      throw error;
-    }
-    if (!password) {
-      const error: any = new Error("password is required");
-      error.statusCode = 400;
-      error.status = "fail";
-      throw error;
-    }
-    //*create instance
-    const user = new User({ full_name, email, password, phone });
-
-    //!handle profile image
-
-    //*save user
-    await user.save();
-
-    //*success response
-    res.status(201).json({
-      message: "Account created",
-      data: user,
-      success: true,
-      status: "success",
-    });
-  } catch (error: any) {
-    next({
-      message: error?.message || "Something went wrong",
-      status: error?.status || "error",
-      success: false,
-      data: null,
-      statusCode: error?.statusCode || 500,
-    });
+//! register
+export const register = catchAsync(async (req: Request, res: Response) => {
+  const { full_name, email, password, phone } = req.body;
+  if (!full_name) {
+    throw new AppError("full name is required", 400);
   }
-};
-
-//!login
-
-//! login user
-export const login = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    const { email, password } = req.body;
-
-    //* validation
-    if (!email) {
-      const error: any = new Error("Email is required");
-      error.statusCode = 400;
-      error.status = "fail";
-      throw error;
-    }
-
-    if (!password) {
-      const error: any = new Error("Password is required");
-      error.statusCode = 400;
-      error.status = "fail";
-      throw error;
-    }
-
-    //* check user by email
-    const user = await User.findOne({ email: email });
-
-    if (!user) {
-      const error: any = new Error("Invalid credentials");
-      error.statusCode = 401;
-      error.status = "fail";
-      throw error;
-    }
-
-    //* compare password
-    // plain password compare
-    if (user.password !== password) {
-      const error: any = new Error("Invalid credentials");
-      error.statusCode = 400;
-      error.status = "fail";
-      throw error;
-    }
-    //todo generate access token
-    //* success response
-    res.status(200).json({
-      message: "Login successful",
-      data: user,
-      success: true,
-      status: "success",
-    });
-  } catch (error: any) {
-    next({
-      message: error?.message || "Something went wrong",
-      status: error?.status || "error",
-      success: false,
-      data: null,
-      statusCode: error?.statusCode || 500,
-    });
+  if (!email) {
+    throw new AppError("email is required", 400);
   }
-};
+  if (!password) {
+    throw new AppError("password is required", 400);
+  }
 
-//!update profile
+  //* create User instance
+  const user = new User({ full_name, email, password, phone });
 
-//!get profile
+  //! hanlde profile image
 
-//!change password
+  //* save user
+  await user.save();
+
+  //* success response
+  sendResponse(res, {
+    message: "Account created",
+    data: user,
+    statusCode: 201,
+  });
+});
+
+//! login
+export const login = catchAsync(async (req: Request, res: Response) => {
+  //* login
+  //* email password <- req.body
+  const { email, password } = req.body;
+
+  if (!email) {
+    throw new AppError("email is required", 400);
+  }
+  if (!password) {
+    throw new AppError("password is required", 400);
+  }
+  //* find user by email
+  const user = await User.findOne({ email: email });
+  if (!user) {
+    throw new AppError("email or password does not matched", 400);
+  }
+  //*  compare password
+  const isPasswordMatched = password === user.password;
+
+  if (!isPasswordMatched) {
+    throw new AppError("email or password does not matched", 400);
+  }
+
+  //todo: generate access token
+
+  //* success response
+  sendResponse(res, {
+    message: "Login success",
+    data: user,
+    statusCode: 201,
+  });
+});
+
+//! update profile
+const update = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    // try logic
+  },
+);
+
+//! get profile
+
+//! change password
