@@ -54,6 +54,7 @@ export const register = async (
 };
 
 //!login
+
 //! login user
 export const login = async (
   req: Request,
@@ -78,7 +79,7 @@ export const login = async (
       throw error;
     }
 
-    //* check user
+    //* check user by email
     const user = await User.findOne({ email: email });
 
     if (!user) {
@@ -92,11 +93,11 @@ export const login = async (
     // plain password compare
     if (user.password !== password) {
       const error: any = new Error("Invalid credentials");
-      error.statusCode = 401;
+      error.statusCode = 400;
       error.status = "fail";
       throw error;
     }
-    //todo generate access tokem
+    //todo generate access token
     //* success response
     res.status(200).json({
       message: "Login successful",
