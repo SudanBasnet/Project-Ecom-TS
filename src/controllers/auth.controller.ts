@@ -3,6 +3,7 @@ import User from "../models/user.model";
 import AppError from "../utils/appError.utils";
 import { sendResponse } from "../utils/sendResponse.utils";
 import { catchAsync } from "../utils/catchAsync.utils";
+import { comparepassword, hashPassword } from "../utils/bcrypt.utils";
 
 //! register
 export const register = catchAsync(async (req: Request, res: Response) => {
@@ -19,7 +20,9 @@ export const register = catchAsync(async (req: Request, res: Response) => {
 
   //* create User instance
   const user = new User({ full_name, email, password, phone });
-
+  //*hash password
+  const hash = await hashPassword(password);
+  user.password = hash;
   //! hanlde profile image
 
   //* save user
@@ -51,7 +54,8 @@ export const login = catchAsync(async (req: Request, res: Response) => {
     throw new AppError("email or password does not matched", 400);
   }
   //*  compare password
-  const isPasswordMatched = password === user.password;
+  // const isPasswordMatched = password === user.password;
+  const isPasswordMatched = await comparepassword(password, user.password);
 
   if (!isPasswordMatched) {
     throw new AppError("email or password does not matched", 400);
