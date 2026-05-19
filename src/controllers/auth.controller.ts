@@ -4,6 +4,7 @@ import AppError from "../utils/appError.utils";
 import { sendResponse } from "../utils/sendResponse.utils";
 import { catchAsync } from "../utils/catchAsync.utils";
 import { comparepassword, hashPassword } from "../utils/bcrypt.utils";
+import { generateJwtToken } from "../utils/jwt.utils";
 
 //! register
 export const register = catchAsync(async (req: Request, res: Response) => {
@@ -63,11 +64,23 @@ export const login = catchAsync(async (req: Request, res: Response) => {
 
   //todo: generate access token
 
+  const payload = {
+    _id: user._id,
+    full_name: user.full_name,
+    email: user.email,
+    role: user.role,
+  };
+  const access_token = generateJwtToken(payload);
+
+  //* success response
   //* success response
   sendResponse(res, {
     message: "Login success",
-    data: user,
-    statusCode: 201,
+    data: {
+      user,
+      access_token,
+    },
+    statusCode: 200,
   });
 });
 
