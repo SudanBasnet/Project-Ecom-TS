@@ -23,3 +23,5 @@ export const generateJwtToken = (payload: TPayload) => {
     throw error;
   }
 };
+
+//!verify token

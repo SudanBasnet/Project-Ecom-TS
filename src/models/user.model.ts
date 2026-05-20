@@ -1,5 +1,8 @@
 import mongoose from "mongoose";
 import { Role } from "../types/enum.types";
+
+//[profile_image:{_id , path: ,public_id}]
+//cloudinary
 const userSchema = new mongoose.Schema(
   {
     full_name: {
@@ -30,6 +33,18 @@ const userSchema = new mongoose.Schema(
       default: Role.USER,
     },
     //!profile_image
+    profile_image: {
+      type: {
+        path: {
+          type: String,
+          required: true,
+        },
+        public_id: {
+          type: String,
+          required: true,
+        },
+      },
+    },
   },
   { timestamps: true },
 );

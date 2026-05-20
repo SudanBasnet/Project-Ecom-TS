@@ -4,9 +4,14 @@
 
 //model
 
-import mongoose from "mongoose";
+import mongoose, { Document } from "mongoose";
 
-const categorySchema = new mongoose.Schema(
+interface ICategorySchema extends Document {
+  name: string;
+  description?: string;
+}
+
+const categorySchema = new mongoose.Schema<ICategorySchema>(
   {
     name: {
       type: String,
@@ -18,7 +23,9 @@ const categorySchema = new mongoose.Schema(
       type: String,
       trim: true,
       default: "",
+      minlength: [25, "min 25 character is needed"],
     },
+    //todo image
   },
   { timestamps: true },
 );

@@ -1,174 +1,107 @@
-//!get all
-
-//!get bby id
-
-//!create
-
-//!update
-
-//!delete
-
 import { NextFunction, Request, Response } from "express";
 import Category from "../models/category.model";
+import { catchAsync } from "../utils/catchAsync.utils";
+import appError from "../utils/appError.utils";
+import { sendResponse } from "../utils/sendResponse.utils";
 
 //! get all categories
-export const getAll = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
+export const getAll = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
     const categories = await Category.find();
 
-    res.status(200).json({
-      message: "Categories fetched",
+    sendResponse(res, {
+      message: "categories fetched",
       data: categories,
-      success: true,
-      status: "success",
+      statusCode: 200,
     });
-  } catch (error: any) {
-    next({
-      message: error?.message || "Something went wrong",
-      statusCode: error?.statusCode || 500,
-      success: false,
-    });
-  }
-};
-
+  },
+);
 //! get category by id
-export const getById = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
+export const getById = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
 
     const category = await Category.findOne({ _id: id });
 
     if (!category) {
-      const error: any = new Error("Category not found");
-      error.statusCode = 404;
-      throw error;
+      throw new appError(`category ${id} not found`, 404);
     }
-
-    res.status(200).json({
-      message: "Category fetched",
+    sendResponse(res, {
+      message: `category ${id} fetched`,
       data: category,
-      success: true,
-      status: "success",
+      statusCode: 200,
     });
-  } catch (error: any) {
-    next({
-      message: error?.message || "Something went wrong",
-      statusCode: error?.statusCode || 500,
-      success: false,
-    });
-  }
-};
+  },
+);
 
 //! create category
-export const create = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
+export const create = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
     const { name, description } = req.body;
 
     if (!name) {
-      const error: any = new Error("Name is required");
-      error.statusCode = 400;
-      throw error;
+      throw new appError("Category name is required", 400);
     }
 
-    const category = await Category.create({
-      name,
-      description,
-    });
+    // const category = await Category.create({
+    //   name,
+    //   description,
+    // });
 
-    res.status(201).json({
+    const category = new Category({ name, description });
+
+    //todo: handle image
+
+    //?save category
+    await category.save();
+    sendResponse(res, {
       message: "Category created",
       data: category,
-      success: true,
-      status: "success",
+      statusCode: 201,
     });
-  } catch (error: any) {
-    next({
-      message: error?.message || "Something went wrong",
-      statusCode: error?.statusCode || 500,
-      success: false,
-    });
-  }
-};
+  },
+);
 
 //! update category
-export const update = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
+export const update = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { name, description } = req.body;
     const { id } = req.params;
 
     const category = await Category.findOne({ _id: id });
 
     if (!category) {
-      const error: any = new Error("Category not found");
-      error.statusCode = 404;
-      throw error;
+      throw new appError(`Category ${id} not found`, 404);
     }
+    if (name) category.name = name;
+    if (description) category.description = description;
+    await category.save();
 
-    const updatedCategory = await Category.findByIdAndUpdate(
-      id,
-      req.body,
-      { new: true },
-    );
-
-    res.status(200).json({
-      message: "Category updated",
-      data: updatedCategory,
-      success: true,
-      status: "success",
+    sendResponse(res, {
+      message: `Category ${id} updated`,
+      data: category,
+      statusCode: 200,
     });
-  } catch (error: any) {
-    next({
-      message: error?.message || "Something went wrong",
-      statusCode: error?.statusCode || 500,
-      success: false,
-    });
-  }
-};
+  },
+);
 
 //! delete category
-export const remove = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
+export const remove = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
 
     const category = await Category.findOne({ _id: id });
 
     if (!category) {
-      const error: any = new Error("Category not found");
-      error.statusCode = 404;
-      throw error;
+      throw new appError(`Category ${id} not found`, 404);
     }
 
     await category.deleteOne();
 
-    res.status(200).json({
+    sendResponse(res, {
       message: "Category deleted",
-      success: true,
-      status: "success",
+      data: null,
+      statusCode: 200,
     });
-  } catch (error: any) {
-    next({
-      message: error?.message || "Something went wrong",
-      statusCode: error?.statusCode || 500,
-      success: false,
-    });
-  }
-};
+  },
+);

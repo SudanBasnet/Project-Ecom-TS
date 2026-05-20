@@ -73,7 +73,6 @@ export const login = catchAsync(async (req: Request, res: Response) => {
   const access_token = generateJwtToken(payload);
 
   //* success response
-  //* success response
   sendResponse(res, {
     message: "Login success",
     data: {
