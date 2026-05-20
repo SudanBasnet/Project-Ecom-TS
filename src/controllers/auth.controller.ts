@@ -5,6 +5,7 @@ import { sendResponse } from "../utils/sendResponse.utils";
 import { catchAsync } from "../utils/catchAsync.utils";
 import { comparepassword, hashPassword } from "../utils/bcrypt.utils";
 import { generateJwtToken } from "../utils/jwt.utils";
+import multer from "multer";
 
 //! register
 export const register = catchAsync(async (req: Request, res: Response) => {
@@ -20,7 +21,12 @@ export const register = catchAsync(async (req: Request, res: Response) => {
   }
 
   //* create User instance
-  const user = new User({ full_name, email, password, phone });
+  const user = new User({
+    full_name,
+    email,
+    password,
+    phone,
+  });
   //*hash password
   const hash = await hashPassword(password);
   user.password = hash;
