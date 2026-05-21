@@ -6,6 +6,7 @@ import { catchAsync } from "../utils/catchAsync.utils";
 import { comparepassword, hashPassword } from "../utils/bcrypt.utils";
 import { generateJwtToken } from "../utils/jwt.utils";
 import multer from "multer";
+import { sendFileToCloudinary } from "../utils/cloudinary.utils";
 
 //! register
 export const register = catchAsync(async (req: Request, res: Response) => {
@@ -33,6 +34,16 @@ export const register = catchAsync(async (req: Request, res: Response) => {
   const hash = await hashPassword(password);
   user.password = hash;
   //! hanlde profile image
+  if (image) {
+    const { path, public_id } = await sendFileToCloudinary(
+      image,
+      "/profile_image",
+    );
+    user.profile_image = {
+      path,
+      public_id,
+    };
+  }
 
   //* save user
   await user.save();
