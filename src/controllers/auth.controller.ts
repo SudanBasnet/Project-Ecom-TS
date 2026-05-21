@@ -9,6 +9,8 @@ import multer from "multer";
 
 //! register
 export const register = catchAsync(async (req: Request, res: Response) => {
+  const image = req.file;
+  console.log(image);
   const { full_name, email, password, phone } = req.body;
   if (!full_name) {
     throw new AppError("full name is required", 400);
