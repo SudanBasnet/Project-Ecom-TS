@@ -5,14 +5,20 @@ import { sendResponse } from "../utils/sendResponse.utils";
 import { catchAsync } from "../utils/catchAsync.utils";
 import { comparepassword, hashPassword } from "../utils/bcrypt.utils";
 import { generateJwtToken } from "../utils/jwt.utils";
-import multer from "multer";
-import { sendFileToCloudinary } from "../utils/cloudinary.utils";
+import {
+  deleteFileFromCloudinary,
+  sendFileToCloudinary,
+} from "../utils/cloudinary.utils";
+
+const folder = "/profile_image";
 
 //! register
 export const register = catchAsync(async (req: Request, res: Response) => {
-  const image = req.file;
-  console.log(image);
   const { full_name, email, password, phone } = req.body;
+
+  const image = req.file as Express.Multer.File;
+  console.log(image);
+
   if (!full_name) {
     throw new AppError("full name is required", 400);
   }
@@ -24,21 +30,15 @@ export const register = catchAsync(async (req: Request, res: Response) => {
   }
 
   //* create User instance
-  const user = new User({
-    full_name,
-    email,
-    password,
-    phone,
-  });
-  //*hash password
+  const user = new User({ full_name, email, phone });
+
+  //! hash password
   const hash = await hashPassword(password);
   user.password = hash;
+
   //! hanlde profile image
   if (image) {
-    const { path, public_id } = await sendFileToCloudinary(
-      image,
-      "/profile_image",
-    );
+    const { path, public_id } = await sendFileToCloudinary(image, folder);
     user.profile_image = {
       path,
       public_id,
@@ -81,8 +81,7 @@ export const login = catchAsync(async (req: Request, res: Response) => {
     throw new AppError("email or password does not matched", 400);
   }
 
-  //todo: generate access token
-
+  //todo: generate access token -> jwt
   const payload = {
     _id: user._id,
     full_name: user.full_name,
@@ -98,7 +97,7 @@ export const login = catchAsync(async (req: Request, res: Response) => {
       user,
       access_token,
     },
-    statusCode: 200,
+    statusCode: 201,
   });
 });
 
@@ -106,6 +105,49 @@ export const login = catchAsync(async (req: Request, res: Response) => {
 const update = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     // try logic
+  },
+);
+
+export const changeProfilePicture = catchAsync(
+  async (req: Request, res: Response) => {
+    //
+    const image = req.file as Express.Multer.File;
+    const { id } = req.params;
+
+    if (!image) {
+      throw new AppError("profile image required", 400);
+    }
+
+    //! find user
+    const user = await User.findOne({ _id: id });
+
+    if (!user) {
+      throw new AppError("user account not found", 400);
+    }
+
+    //! upload image to cloud
+    const { path, public_id } = await sendFileToCloudinary(image, folder);
+
+    //! delete old image
+    if (user?.profile_image?.public_id) {
+      await deleteFileFromCloudinary(user.profile_image.public_id);
+    }
+
+    //! assign new image to user
+    user.profile_image = {
+      path,
+      public_id,
+    };
+
+    //! save user
+    await user.save();
+
+    //! send success response
+    sendResponse(res, {
+      message: "profile image updated",
+      data: user,
+      statusCode: 200,
+    });
   },
 );
 

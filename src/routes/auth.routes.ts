@@ -1,13 +1,26 @@
 import express from "express";
-import { login, register } from "../controllers/auth.controller";
+import {
+  changeProfilePicture,
+  login,
+  register,
+} from "../controllers/auth.controller";
 import { multerUploader } from "../middlewares/multer.middleware";
 
 const router = express.Router();
+
 const upload = multerUploader();
 
-//!create account
+//! create account
 router.post("/register", upload.single("profile_image"), register);
-//!login account
+
+//! login user
 router.post("/login", login);
+
+//! chnage profile image
+router.put(
+  "/change-profile-image/:id",
+  upload.single("profile_image"),
+  changeProfilePicture,
+);
 
 export default router;

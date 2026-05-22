@@ -1,34 +1,44 @@
-//name:req,description optional
-
-//category schema
-
-//model
-
 import mongoose, { Document } from "mongoose";
 
 interface ICategorySchema extends Document {
   name: string;
   description?: string;
+  image: {
+    path: string;
+    public_id: string;
+  };
 }
 
+//* category schema
 const categorySchema = new mongoose.Schema<ICategorySchema>(
   {
     name: {
       type: String,
-      required: [true, "category name is required"],
+      required: [true, "name is required"],
       trim: true,
-      minlength: [2, "category name must be at least 2 characters"],
     },
     description: {
       type: String,
       trim: true,
-      default: "",
-      minlength: [25, "min 25 character is needed"],
+      minLength: [25, "minimum 25 char. is required"],
     },
-    //todo image
+    image: {
+      type: {
+        path: {
+          type: String,
+          required: true,
+        },
+        public_id: {
+          type: String,
+          required: true,
+        },
+      },
+      required: [true, "image is required"],
+    },
   },
   { timestamps: true },
 );
 
-const Category = mongoose.model("Category", categorySchema);
+//? model
+const Category = mongoose.model("category", categorySchema);
 export default Category;
