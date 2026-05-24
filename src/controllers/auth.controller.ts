@@ -9,6 +9,7 @@ import {
   deleteFileFromCloudinary,
   sendFileToCloudinary,
 } from "../utils/cloudinary.utils";
+import ENV_CONFIG from "../config/env.config";
 
 const folder = "/profile_image";
 
@@ -89,7 +90,14 @@ export const login = catchAsync(async (req: Request, res: Response) => {
     role: user.role,
   };
   const access_token = generateJwtToken(payload);
+  //* send access  token in cookie
 
+  res.cookie("access_token", access_token, {
+    httpOnly: ENV_CONFIG.node_env === "development" ? false : true,
+    maxAge: parseInt(ENV_CONFIG.cookie_exp ?? "7") * 24 * 60 * 1000,
+    secure: ENV_CONFIG.node_env === "development" ? false : true,
+    sameSite: ENV_CONFIG.node_env === "development" ? "lax" : "none",
+  });
   //* success response
   sendResponse(res, {
     message: "Login success",

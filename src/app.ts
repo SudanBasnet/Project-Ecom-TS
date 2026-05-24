@@ -4,6 +4,7 @@ import { errorHandler } from "./middlewares/errorHandler.middleware";
 import routes from "./routes/index";
 import appError from "./utils/appError.utils";
 import { notFound } from "./middlewares/notFound.middleware";
+import cookieParser from "cookie-parser";
 
 //!creating express app instance
 const app = express();
@@ -12,6 +13,8 @@ const app = express();
 app.use(express.json({ limit: "10mb" }));
 
 //!using middlewares
+//*cookieparser
+app.use(cookieParser());
 
 //!health route
 app.get("/", (req: Request, res: Response) => {

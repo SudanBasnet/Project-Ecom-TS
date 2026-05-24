@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import AppError from "../utils/appError.utils";
+import ENV_CONFIG from "../config/env.config";
 
 export const errorHandler = (
   error: any,
@@ -39,5 +40,6 @@ export const errorHandler = (
     status,
     success: false,
     data: null,
+    stack: ENV_CONFIG.node_env === "development" ? error.stack : null,
   });
 };
