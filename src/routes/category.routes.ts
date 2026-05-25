@@ -7,7 +7,7 @@ import {
   remove,
   update,
 } from "../controllers/category.controller";
-import { Role } from "../types/enum.types";
+import { Only_Admins, Role } from "../types/enum.types";
 import { authenticate } from "../middlewares/auth.middleware";
 
 const router = express.Router();
@@ -19,12 +19,12 @@ router.get("/", getAll);
 router.get("/:id", getById);
 
 //! create category
-router.post("/", authenticate([Role.ADMIN, Role.SUPER_ADMIN]), create);
+router.post("/", authenticate(Only_Admins), create);
 
 //! update category
-router.put("/:id", authenticate([Role.ADMIN, Role.SUPER_ADMIN]), update);
+router.put("/:id", authenticate(Only_Admins), update);
 
 //! delete category
-router.delete("/:id", authenticate([Role.ADMIN, Role.SUPER_ADMIN]), remove);
+router.delete("/:id", authenticate(Only_Admins), remove);
 
 export default router;

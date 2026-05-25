@@ -28,7 +28,7 @@ export const generateJwtToken = (payload: TPayload) => {
 //!verify token
 export const verifyToken = (token: string): TJwtReturn => {
   try {
-    return jwt.verify(token, ENV_CONFIG.jwt_secret);
+    return jwt.verify(token, ENV_CONFIG.jwt_secret) as TJwtReturn;
   } catch (error) {
     throw error;
   }
