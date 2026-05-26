@@ -120,7 +120,7 @@ export const changeProfilePicture = catchAsync(
   async (req: Request, res: Response) => {
     //
     const image = req.file as Express.Multer.File;
-    const id = req.params;
+    const id = req.user?._id;
 
     if (!image) {
       throw new AppError("profile image required", 400);
