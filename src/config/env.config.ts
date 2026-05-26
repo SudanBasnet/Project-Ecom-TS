@@ -20,6 +20,6 @@ const ENV_CONFIG = {
   smtp_service: process.env.SMTP_PORT!!,
   smtp_port: process.env.SMTP_PORT!!,
   smtp_user: process.env.SMTP_USER!!,
-  smtp_pass: process.env.SMTP_Pass!!,
+  smtp_pass: process.env.SMTP_PASS!!,
 };
 export default ENV_CONFIG;
