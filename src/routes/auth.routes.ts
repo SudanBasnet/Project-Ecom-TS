@@ -19,7 +19,7 @@ router.post("/register", upload.single("profile_image"), register);
 //! login user
 router.post("/login", login);
 
-//! chnage profile image
+//! change profile image
 router.put(
   "/change-profile-image/:id",
   upload.single("profile_image"),

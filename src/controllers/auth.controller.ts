@@ -11,6 +11,7 @@ import {
 } from "../utils/cloudinary.utils";
 import ENV_CONFIG from "../config/env.config";
 import { sendEmail } from "../utils/sendEmail.utils";
+import { generateLoginSuccessEmailHtml } from "../utils/email.utils";
 
 const folder = "/profile_image";
 
@@ -92,7 +93,15 @@ export const login = catchAsync(async (req: Request, res: Response) => {
   };
   const access_token = generateJwtToken(payload);
 
-  await sendEmail();
+  await sendEmail({
+    to: user.email,
+    subject: `Welcome ${user.full_name}`,
+    html: generateLoginSuccessEmailHtml(req, {
+      full_name: user.full_name,
+      _id: user._id,
+      email: user.email,
+    }),
+  });
   //* send access  token in cookie
 
   res.cookie("access_token", access_token, {

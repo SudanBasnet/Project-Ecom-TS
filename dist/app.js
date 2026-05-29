@@ -4,9 +4,29 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-//creating express app instance
+const errorHandler_middleware_1 = require("./middlewares/errorHandler.middleware");
+const index_1 = __importDefault(require("./routes/index"));
+const notFound_middleware_1 = require("./middlewares/notFound.middleware");
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
+//!creating express app instance
 const app = (0, express_1.default)();
-//body parser
+//!body parser
 app.use(express_1.default.json({ limit: "10mb" }));
-//using middlewares
+//!using middlewares
+//*cookieparser
+app.use((0, cookie_parser_1.default)());
+//!health route
+app.get("/", (req, res) => {
+    res.status(200).json({
+        message: "server is up and running",
+        success: true,
+        status: "success",
+    });
+});
+//!using routes
+app.use("/api/v1", index_1.default);
+//!path not found error middleware
+app.use(notFound_middleware_1.notFound);
+//!error handler
+app.use(errorHandler_middleware_1.errorHandler);
 exports.default = app;
