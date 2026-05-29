@@ -10,4 +10,6 @@ const router = express_1.default.Router();
 router.get("/", user_controller_1.getAll);
 //!get by id
 router.get("/:id", user_controller_1.getbyid);
+//!delete by id
+router.delete("/:id", user_controller_1.deleteById);
 exports.default = router;

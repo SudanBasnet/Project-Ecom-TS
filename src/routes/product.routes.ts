@@ -6,9 +6,9 @@ import {
   getById,
   getFeaturedProducts,
   getNewProducts,
+  remove,
+  update,
 } from "../controllers/product.controller";
-import { authenticate } from "../middlewares/auth.middlware";
-import { Only_Admins } from "../types/enum.types";
 import { multerUploader } from "../middlewares/multer.middleware";
 
 const router = Router();
@@ -45,5 +45,24 @@ router.post(
   // authenticate(Only_Admins),
   create,
 );
+
+//? update
+router.put(
+  "/:id",
+  upload.fields([
+    {
+      name: "cover_image",
+      maxCount: 1,
+    },
+    {
+      name: "images",
+      maxCount: 6,
+    },
+  ]),
+  update,
+);
+
+//? delete
+router.delete("/:id", remove);
 
 export default router;

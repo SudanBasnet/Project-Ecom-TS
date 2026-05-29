@@ -8,6 +8,10 @@ const catchAsync_utils_1 = require("../utils/catchAsync.utils");
 const product_model_1 = __importDefault(require("../models/product.model"));
 const sendResponse_utils_1 = require("../utils/sendResponse.utils");
 const appError_utils_1 = __importDefault(require("../utils/appError.utils"));
+const category_model_1 = __importDefault(require("../models/category.model"));
+const brand_model_1 = __importDefault(require("../models/brand.model"));
+const cloudinary_utils_1 = require("../utils/cloudinary.utils");
+const folder = "/products";
 //* get all products
 exports.getAll = (0, catchAsync_utils_1.catchAsync)(async (req, res) => {
     const filter = {};
@@ -18,12 +22,12 @@ exports.getAll = (0, catchAsync_utils_1.catchAsync)(async (req, res) => {
         data: products,
     });
 });
-//* get product by id
+//* get by id
 exports.getById = (0, catchAsync_utils_1.catchAsync)(async (req, res) => {
     const { id } = req.params;
-    const product = await product_model_1.default.findById(id);
+    const product = await product_model_1.default.findOne({ _id: id });
     if (!product) {
-        throw new appError_utils_1.default(`Product ${id} not found`, 404);
+        throw new appError_utils_1.default(`product ${id} not found `, 404);
     }
     (0, sendResponse_utils_1.sendResponse)(res, {
         message: `Product ${id} fetched`,
@@ -31,52 +35,149 @@ exports.getById = (0, catchAsync_utils_1.catchAsync)(async (req, res) => {
         data: product,
     });
 });
-//* create product
+//* create
 exports.create = (0, catchAsync_utils_1.catchAsync)(async (req, res) => {
-    const product = await product_model_1.default.create(req.body);
+    const { name, description, price, stock, category, brand, new_arrival, featured, } = req.body;
+    //! files
+    const { cover_image, images } = req.files;
+    if (!name || !price || !stock) {
+        throw new appError_utils_1.default("name , price & stock are required", 400);
+    }
+    if (!category) {
+        throw new appError_utils_1.default("category required", 400);
+    }
+    if (!brand) {
+        throw new appError_utils_1.default("brand required", 400);
+    }
+    if (!cover_image[0]) {
+        throw new appError_utils_1.default("cover_image is required", 400);
+    }
+    const product = new product_model_1.default({
+        name,
+        stock,
+        price,
+        description,
+        new_arrival,
+        featured,
+    });
+    const p_category = await category_model_1.default.findOne({ _id: category });
+    if (!p_category) {
+        throw new appError_utils_1.default("Category not found", 400);
+    }
+    const p_brand = await brand_model_1.default.findOne({ _id: brand });
+    if (!p_brand) {
+        throw new appError_utils_1.default("Brand not found", 400);
+    }
+    product.category = p_category._id;
+    product.brand = p_brand._id;
+    //todo images
+    //* cover image
+    const { path, public_id } = await (0, cloudinary_utils_1.sendFileToCloudinary)(cover_image[0], folder);
+    product.cover_image = {
+        path,
+        public_id,
+    };
+    // * images
+    if (images && Array.isArray(images) && images.length > 0) {
+        const promises = images.map(async (file) => await (0, cloudinary_utils_1.sendFileToCloudinary)(file, folder));
+        const files = await Promise.all(promises);
+        product.image = files;
+    }
+    //! save product
+    await product.save();
     (0, sendResponse_utils_1.sendResponse)(res, {
-        message: "Product created",
+        message: `Product ${product._id} created`,
         statusCode: 201,
         data: product,
     });
 });
-//* update product
+//* update
 exports.update = (0, catchAsync_utils_1.catchAsync)(async (req, res) => {
     const { id } = req.params;
-    const product = await product_model_1.default.findById(id);
+    const { name, description, price, stock, category, brand, new_arrival, featured, } = req.body;
+    const product = await product_model_1.default.findOne({ _id: id });
     if (!product) {
-        throw new appError_utils_1.default(`Product ${id} not found`, 404);
+        throw new appError_utils_1.default(`product ${id} not found`, 404);
     }
-    const updatedProduct = await product_model_1.default.findByIdAndUpdate(id, req.body, {
-        new: true,
-        runValidators: true,
-    });
+    const files = req.files;
+    const cover_image = files?.cover_image;
+    const images = files?.images;
+    if (category) {
+        const p_category = await category_model_1.default.findOne({ _id: category });
+        if (!p_category) {
+            throw new appError_utils_1.default("Category not found", 400);
+        }
+        product.category = p_category._id;
+    }
+    if (brand) {
+        const p_brand = await brand_model_1.default.findOne({ _id: brand });
+        if (!p_brand) {
+            throw new appError_utils_1.default("Brand not found", 400);
+        }
+        product.brand = p_brand._id;
+    }
+    if (name)
+        product.name = name;
+    if (description)
+        product.description = description;
+    if (price)
+        product.price = price;
+    if (stock !== undefined)
+        product.stock = stock;
+    if (new_arrival !== undefined)
+        product.new_arrival = new_arrival;
+    if (featured !== undefined)
+        product.featured = featured;
+    if (cover_image && cover_image[0]) {
+        if (product.cover_image?.public_id) {
+            await (0, cloudinary_utils_1.deleteFileFromCloudinary)(product.cover_image.public_id);
+        }
+        const { path, public_id } = await (0, cloudinary_utils_1.sendFileToCloudinary)(cover_image[0], folder);
+        product.cover_image = {
+            path,
+            public_id,
+        };
+    }
+    if (images && Array.isArray(images) && images.length > 0) {
+        if (Array.isArray(product.image)) {
+            await Promise.all(product.image.map((file) => file.public_id ? (0, cloudinary_utils_1.deleteFileFromCloudinary)(file.public_id) : null));
+        }
+        const promises = images.map(async (file) => await (0, cloudinary_utils_1.sendFileToCloudinary)(file, folder));
+        product.image = await Promise.all(promises);
+    }
+    await product.save();
     (0, sendResponse_utils_1.sendResponse)(res, {
-        message: "Product updated",
+        message: `Product ${id} updated`,
         statusCode: 200,
-        data: updatedProduct,
+        data: product,
     });
 });
-//* delete product
+//* remove
 exports.remove = (0, catchAsync_utils_1.catchAsync)(async (req, res) => {
     const { id } = req.params;
-    const product = await product_model_1.default.findById(id);
+    const product = await product_model_1.default.findOne({ _id: id });
     if (!product) {
-        throw new appError_utils_1.default(`Product ${id} not found`, 404);
+        throw new appError_utils_1.default(`product ${id} not found`, 404);
     }
-    await product_model_1.default.findByIdAndDelete(id);
+    if (product.cover_image?.public_id) {
+        await (0, cloudinary_utils_1.deleteFileFromCloudinary)(product.cover_image.public_id);
+    }
+    if (Array.isArray(product.image)) {
+        await Promise.all(product.image.map((file) => file.public_id ? (0, cloudinary_utils_1.deleteFileFromCloudinary)(file.public_id) : null));
+    }
+    await product.deleteOne();
     (0, sendResponse_utils_1.sendResponse)(res, {
-        message: "Product deleted",
+        message: `Product ${id} deleted`,
         statusCode: 200,
-        data: null,
+        data: product,
     });
 });
 //* get by category
 exports.getByCategory = (0, catchAsync_utils_1.catchAsync)(async (req, res) => {
-    const { id: categoryId } = req.params;
-    const products = await product_model_1.default.find({ category: categoryId });
+    const { id } = req.params;
+    const products = await product_model_1.default.find({ category: id });
     (0, sendResponse_utils_1.sendResponse)(res, {
-        message: `Products by category ${categoryId} fetched`,
+        message: `Product by category ${id} fetched`,
         statusCode: 200,
         data: products,
     });
@@ -85,7 +186,7 @@ exports.getByCategory = (0, catchAsync_utils_1.catchAsync)(async (req, res) => {
 exports.getFeaturedProducts = (0, catchAsync_utils_1.catchAsync)(async (req, res) => {
     const products = await product_model_1.default.find({ featured: true });
     (0, sendResponse_utils_1.sendResponse)(res, {
-        message: "All featured products fetched",
+        message: `All featured Products fetched`,
         statusCode: 200,
         data: products,
     });
@@ -94,7 +195,7 @@ exports.getFeaturedProducts = (0, catchAsync_utils_1.catchAsync)(async (req, res
 exports.getNewProducts = (0, catchAsync_utils_1.catchAsync)(async (req, res) => {
     const products = await product_model_1.default.find({ new_arrival: true });
     (0, sendResponse_utils_1.sendResponse)(res, {
-        message: "All new arrival products fetched",
+        message: `All new arrivals  fetched`,
         statusCode: 200,
         data: products,
     });
