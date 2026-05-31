@@ -1,0 +1,245 @@
+@host = http://localhost:8080
+@baseUrl = {{host}}/api/v1
+@accessToken = paste_login_access_token_here
+@userId = paste_user_id_here
+@categoryId = paste_category_id_here
+@brandId = paste_brand_id_here
+@productId = paste_product_id_here
+
+### Health check
+GET {{host}}/
+
+### Register user
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "full_name": "Demo User",
+  "email": "demo@example.com",
+  "password": "password123",
+  "phone": "9800000000"
+}
+
+### Login
+# Copy data.access_token from the response into @accessToken above.
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "demo@example.com",
+  "password": "password123"
+}
+
+### Change profile image
+PUT {{baseUrl}}/auth/change-profile-image/{{userId}}
+Cookie: access_token={{accessToken}}
+Content-Type: multipart/form-data; boundary=Boundary
+
+--Boundary
+Content-Disposition: form-data; name="profile_image"; filename="profile.jpg"
+Content-Type: image/jpeg
+
+< ./uploads/1779363893930-aa.jpg
+--Boundary--
+
+### Get all brands
+GET {{baseUrl}}/brands
+
+### Create brand
+POST {{baseUrl}}/brands
+Content-Type: application/json
+
+{
+  "name": "Nike",
+  "description": "Sportswear brand"
+}
+
+### Get brand by id
+GET {{baseUrl}}/brands/{{brandId}}
+
+### Update brand
+PUT {{baseUrl}}/brands/{{brandId}}
+Content-Type: application/json
+
+{
+  "name": "Nike Updated",
+  "description": "Updated description"
+}
+
+### Delete brand
+DELETE {{baseUrl}}/brands/{{brandId}}
+
+### Get all categories
+GET {{baseUrl}}/categories
+
+### Create category
+POST {{baseUrl}}/categories
+Cookie: access_token={{accessToken}}
+Content-Type: multipart/form-data; boundary=Boundary
+
+--Boundary
+Content-Disposition: form-data; name="name"
+
+Shoes
+--Boundary
+Content-Disposition: form-data; name="description"
+
+All shoe products
+--Boundary
+Content-Disposition: form-data; name="image"; filename="category.jpg"
+Content-Type: image/jpeg
+
+< ./uploads/1779363893930-aa.jpg
+--Boundary--
+
+### Get category by id
+GET {{baseUrl}}/categories/{{categoryId}}
+
+### Update category
+PUT {{baseUrl}}/categories/{{categoryId}}
+Cookie: access_token={{accessToken}}
+Content-Type: multipart/form-data; boundary=Boundary
+
+--Boundary
+Content-Disposition: form-data; name="name"
+
+Shoes Updated
+--Boundary
+Content-Disposition: form-data; name="description"
+
+Updated category description
+--Boundary--
+
+### Delete category
+DELETE {{baseUrl}}/categories/{{categoryId}}
+Cookie: access_token={{accessToken}}
+
+### Get all products
+GET {{baseUrl}}/products
+
+### Get featured products
+GET {{baseUrl}}/products/featured
+
+### Get new arrivals
+GET {{baseUrl}}/products/new-arrivals
+
+### Get products by category
+GET {{baseUrl}}/products/category/{{categoryId}}
+
+### Get product by id
+GET {{baseUrl}}/products/{{productId}}
+
+### Create product
+POST {{baseUrl}}/products
+Content-Type: multipart/form-data; boundary=Boundary
+
+--Boundary
+Content-Disposition: form-data; name="name"
+
+Air Runner
+--Boundary
+Content-Disposition: form-data; name="description"
+
+Lightweight running shoes
+--Boundary
+Content-Disposition: form-data; name="price"
+
+1200
+--Boundary
+Content-Disposition: form-data; name="stock"
+
+20
+--Boundary
+Content-Disposition: form-data; name="category"
+
+{{categoryId}}
+--Boundary
+Content-Disposition: form-data; name="brand"
+
+{{brandId}}
+--Boundary
+Content-Disposition: form-data; name="new_arrival"
+
+true
+--Boundary
+Content-Disposition: form-data; name="featured"
+
+false
+--Boundary
+Content-Disposition: form-data; name="cover_image"; filename="cover.jpg"
+Content-Type: image/jpeg
+
+< ./uploads/1779363893930-aa.jpg
+--Boundary
+Content-Disposition: form-data; name="images"; filename="image-1.jpg"
+Content-Type: image/jpeg
+
+< ./uploads/1779364128263-aa.jpg
+--Boundary--
+
+### Update product
+PUT {{baseUrl}}/products/{{productId}}
+Content-Type: multipart/form-data; boundary=Boundary
+
+--Boundary
+Content-Disposition: form-data; name="name"
+
+Air Runner Updated
+--Boundary
+Content-Disposition: form-data; name="price"
+
+1300
+--Boundary
+Content-Disposition: form-data; name="stock"
+
+15
+--Boundary--
+
+### Delete product
+DELETE {{baseUrl}}/products/{{productId}}
+
+### Get cart
+GET {{baseUrl}}/cart
+Cookie: access_token={{accessToken}}
+
+### Add product to cart
+POST {{baseUrl}}/cart/{{productId}}
+Cookie: access_token={{accessToken}}
+Content-Type: application/json
+
+{
+  "quantity": 2
+}
+
+### Update cart item quantity
+PUT {{baseUrl}}/cart/{{productId}}
+Cookie: access_token={{accessToken}}
+Content-Type: application/json
+
+{
+  "quantity": 3
+}
+
+### Remove product from cart
+DELETE {{baseUrl}}/cart/{{productId}}
+Cookie: access_token={{accessToken}}
+
+### Clear cart
+DELETE {{baseUrl}}/cart
+Cookie: access_token={{accessToken}}
+
+### Get wishlist
+GET {{baseUrl}}/wishlist
+Cookie: access_token={{accessToken}}
+
+### Add product to wishlist
+POST {{baseUrl}}/wishlist/{{productId}}
+Cookie: access_token={{accessToken}}
+
+### Remove product from wishlist
+DELETE {{baseUrl}}/wishlist/{{productId}}
+Cookie: access_token={{accessToken}}
+
+### Clear wishlist
+DELETE {{baseUrl}}/wishlist
+Cookie: access_token={{accessToken}}
