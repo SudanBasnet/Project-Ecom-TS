@@ -10,6 +10,7 @@ import {
   sendFileToCloudinary,
 } from "../utils/cloudinary.utils";
 import mongoose from "mongoose";
+import { getPagination } from "../utils/pagination.utils";
 
 const folder = "/products";
 
@@ -26,6 +27,7 @@ export const getAll = catchAsync(async (req: Request, res: Response) => {
   } = req.query;
   const perPage = Number(limit);
   const currPage = Number(page);
+  const skip = (currPage - 1) * perPage;
   const filter: mongoose.QueryFilter<any> = {};
   if (query) {
     filter.$or = [
@@ -58,12 +60,22 @@ export const getAll = catchAsync(async (req: Request, res: Response) => {
       };
     }
   }
-  const products = await Product.find(filter);
+  const products = await Product.find(filter).skip(skip).limit(perPage);
+  const count = await Product.countDocuments(filter);
+  const { total_count, total_pages, current_page, next_page, prev_page } =
+    getPagination(count, perPage, currPage);
 
   sendResponse(res, {
     message: "Products fetched",
     statusCode: 200,
     data: products,
+    meta: {
+      total_count,
+      total_pages,
+      current_page,
+      next_page,
+      prev_page,
+    },
   });
 });
 //* get by id
