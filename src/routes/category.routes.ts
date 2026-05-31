@@ -25,6 +25,7 @@ router.get("/:id", getById);
 // router.post("/", authenticate(Only_Admins), create);
 
 router.post("/", authenticate(Only_Admins), upload.single("image"), create);
+
 router.put("/:id", authenticate(Only_Admins), upload.single("image"), update);
 
 //! update category

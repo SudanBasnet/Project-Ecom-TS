@@ -84,7 +84,7 @@ export const login = catchAsync(async (req: Request, res: Response) => {
     throw new AppError("email or password does not matched", 400);
   }
 
-  //todo: generate access token -> jwt
+  //!jwt token
   const payload = {
     _id: user._id,
     full_name: user.full_name,
