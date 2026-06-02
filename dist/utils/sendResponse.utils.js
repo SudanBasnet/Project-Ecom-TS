@@ -4,9 +4,12 @@ exports.sendResponse = void 0;
 const sendResponse = (res, data) => {
     res.status(data.statusCode).json({
         message: data.message,
-        data: data.data,
+        data: {
+            data: data.data,
+            pagination: data.meta,
+        },
         status: "success",
-        succcess: true,
+        success: true,
     });
 };
 exports.sendResponse = sendResponse;

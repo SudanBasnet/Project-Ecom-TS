@@ -11,15 +11,55 @@ const appError_utils_1 = __importDefault(require("../utils/appError.utils"));
 const category_model_1 = __importDefault(require("../models/category.model"));
 const brand_model_1 = __importDefault(require("../models/brand.model"));
 const cloudinary_utils_1 = require("../utils/cloudinary.utils");
+const pagination_utils_1 = require("../utils/pagination.utils");
 const folder = "/products";
 //* get all products
 exports.getAll = (0, catchAsync_utils_1.catchAsync)(async (req, res) => {
+    const { query, category, brand, minPrice, maxPrice, limit = "10", page = "1", } = req.query;
+    const perPage = Number(limit);
+    const currPage = Number(page);
+    const skip = (currPage - 1) * perPage;
     const filter = {};
-    const products = await product_model_1.default.find(filter);
+    if (query) {
+        filter.$or = [
+            {
+                name: { $regex: query, $options: "i" },
+            },
+            {
+                description: { $regex: query, $options: "i" },
+            },
+        ];
+    }
+    if (category) {
+        filter.category = category;
+    }
+    if (brand) {
+        filter.brand = brand;
+    }
+    //! price filter
+    if (minPrice || maxPrice) {
+        filter.price = {};
+        if (minPrice) {
+            filter.price.$gte = Number(minPrice);
+        }
+        if (maxPrice) {
+            filter.price.$lte = Number(maxPrice);
+        }
+    }
+    const products = await product_model_1.default.find(filter).skip(skip).limit(perPage);
+    const count = await product_model_1.default.countDocuments(filter);
+    const { total_count, total_pages, current_page, next_page, prev_page } = (0, pagination_utils_1.getPagination)(count, perPage, currPage);
     (0, sendResponse_utils_1.sendResponse)(res, {
         message: "Products fetched",
         statusCode: 200,
         data: products,
+        meta: {
+            total_count,
+            total_pages,
+            current_page,
+            next_page,
+            prev_page,
+        },
     });
 });
 //* get by id
@@ -39,7 +79,9 @@ exports.getById = (0, catchAsync_utils_1.catchAsync)(async (req, res) => {
 exports.create = (0, catchAsync_utils_1.catchAsync)(async (req, res) => {
     const { name, description, price, stock, category, brand, new_arrival, featured, } = req.body;
     //! files
-    const { cover_image, images } = req.files;
+    const files = req.files;
+    const cover_image = files?.cover_image;
+    const images = files?.images;
     if (!name || !price || !stock) {
         throw new appError_utils_1.default("name , price & stock are required", 400);
     }
@@ -49,7 +91,7 @@ exports.create = (0, catchAsync_utils_1.catchAsync)(async (req, res) => {
     if (!brand) {
         throw new appError_utils_1.default("brand required", 400);
     }
-    if (!cover_image[0]) {
+    if (!cover_image?.[0]) {
         throw new appError_utils_1.default("cover_image is required", 400);
     }
     const product = new product_model_1.default({

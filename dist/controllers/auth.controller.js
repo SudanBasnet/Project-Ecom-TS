@@ -73,7 +73,7 @@ exports.login = (0, catchAsync_utils_1.catchAsync)(async (req, res) => {
     if (!isPasswordMatched) {
         throw new appError_utils_1.default("email or password does not matched", 400);
     }
-    //todo: generate access token -> jwt
+    //!jwt token
     const payload = {
         _id: user._id,
         full_name: user.full_name,

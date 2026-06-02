@@ -49,15 +49,12 @@ export const getAll = catchAsync(async (req: Request, res: Response) => {
 
   //! price filter
   if (minPrice || maxPrice) {
+    filter.price = {};
     if (minPrice) {
-      filter.price = {
-        $gte: Number(minPrice),
-      };
+      filter.price.$gte = Number(minPrice);
     }
     if (maxPrice) {
-      filter.price = {
-        $lte: Number(maxPrice),
-      };
+      filter.price.$lte = Number(maxPrice);
     }
   }
   const products = await Product.find(filter).skip(skip).limit(perPage);
@@ -108,9 +105,13 @@ export const create = catchAsync(async (req: Request, res: Response) => {
   } = req.body;
 
   //! files
-  const { cover_image, images } = req.files as {
-    [fieldname: string]: Express.Multer.File[];
-  };
+  const files = req.files as
+    | {
+        [fieldname: string]: Express.Multer.File[];
+      }
+    | undefined;
+  const cover_image = files?.cover_image;
+  const images = files?.images;
 
   if (!name || !price || !stock) {
     throw new AppError("name , price & stock are required", 400);
@@ -123,7 +124,7 @@ export const create = catchAsync(async (req: Request, res: Response) => {
     throw new AppError("brand required", 400);
   }
 
-  if (!cover_image[0]) {
+  if (!cover_image?.[0]) {
     throw new AppError("cover_image is required", 400);
   }
   const product = new Product({
