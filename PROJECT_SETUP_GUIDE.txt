@@ -1,0 +1,273 @@
+PROJECT ECOM SERVER - SETUP GUIDE
+=================================
+
+This file explains how the backend is arranged and how to set it up again from
+the beginning.
+
+
+1. WHAT THIS PROJECT IS
+-----------------------
+
+This is a Node.js backend API for an ecommerce project.
+
+It uses:
+- Express for the HTTP server.
+- TypeScript for typed source code.
+- MongoDB and Mongoose for database storage.
+- JWT for authentication.
+- Cookies for storing the access token.
+- Multer for receiving uploaded files.
+- Cloudinary for storing uploaded images.
+- Nodemailer for sending login email notifications.
+
+
+2. IMPORTANT FOLDERS
+--------------------
+
+src/app.ts
+  Creates the Express app, adds JSON parsing and cookie parsing, registers the
+  routes, then attaches the not-found and error handler middlewares.
+
+src/server.ts
+  Reads environment config, connects to MongoDB, and starts the server.
+
+src/config/
+  Holds setup files for environment variables, MongoDB, Cloudinary, and
+  Nodemailer.
+
+src/routes/
+  Defines API paths and maps them to controller functions.
+
+src/controllers/
+  Contains the main request logic for auth, users, brands, categories, products,
+  cart, and wishlist.
+
+src/models/
+  Contains Mongoose schemas and models.
+
+src/middlewares/
+  Contains auth middleware, multer upload middleware, not-found middleware, and
+  global error handling.
+
+src/utils/
+  Helper functions for password hashing, JWT, Cloudinary, email, pagination,
+  async error catching, and standard responses.
+
+src/types/
+  Shared enums and Express request type extension.
+
+rest.http
+  Example API requests that can be used from an editor REST client.
+
+uploads/
+  Temporary local folder where Multer stores files before they are uploaded to
+  Cloudinary.
+
+dist/
+  Compiled JavaScript output created by npm run build.
+
+
+3. SETUP FROM THE BEGINNING
+---------------------------
+
+Step 1: Install dependencies
+
+  npm install
+
+Step 2: Create environment file
+
+  cp .env.example .env
+
+Step 3: Fill in .env values
+
+Required values:
+
+  PORT
+  NODE_ENV
+  DB_URI
+  SMTP_HOST
+  SMTP_SERVICE
+  SMTP_PORT
+  SMTP_USER
+  SMTP_PASS
+  CLOUDINARY_CLOUD_NAME
+  CLOUDINARY_API_KEY
+  CLOUDINARY_API_SECRET
+  JWT_SECRET
+  JWT_EXPIRY
+  COOKIE_EXPIRY
+
+Example local database value:
+
+  DB_URI=mongodb://localhost:27017/team_12
+
+Step 4: Make sure MongoDB is running
+
+If using local MongoDB, start it before running the server.
+If using MongoDB Atlas, put the Atlas connection string in DB_URI.
+
+Step 5: Make sure Cloudinary is configured
+
+The app uploads category, product, and profile images to Cloudinary.
+Add these values in .env:
+
+  CLOUDINARY_CLOUD_NAME
+  CLOUDINARY_API_KEY
+  CLOUDINARY_API_SECRET
+
+Step 6: Make sure email is configured
+
+Login sends an email using Nodemailer.
+For Gmail, SMTP_PASS normally needs to be an app password, not the normal Gmail
+password.
+
+Step 7: Run development server
+
+  npm run dev
+
+Step 8: Check server health
+
+Open or request:
+
+  http://localhost:8080/
+
+If PORT is different in .env, use that port instead.
+
+
+4. BUILD AND PRODUCTION START
+-----------------------------
+
+Build TypeScript into dist:
+
+  npm run build
+
+Start compiled JavaScript:
+
+  npm start
+
+The start command runs:
+
+  node ./dist/server.js
+
+
+5. AUTH FLOW
+------------
+
+Register:
+
+  POST /api/v1/auth/register
+
+Required body fields:
+
+  full_name
+  email
+  password
+
+Optional:
+
+  phone
+  profile_image file
+
+Login:
+
+  POST /api/v1/auth/login
+
+Required body fields:
+
+  email
+  password
+
+On successful login:
+- A JWT access token is generated.
+- The token is sent in the response body.
+- The token is also set as an access_token cookie.
+- A login success email is sent.
+
+Protected routes expect:
+
+  Cookie: access_token=<token>
+
+
+6. MAIN API AREAS
+-----------------
+
+Auth:
+  /api/v1/auth
+
+Users:
+  /api/v1/users
+
+Brands:
+  /api/v1/brands
+
+Categories:
+  /api/v1/categories
+
+Products:
+  /api/v1/products
+
+Cart:
+  /api/v1/cart
+
+Wishlist:
+  /api/v1/wishlist
+
+Use rest.http for ready-made examples.
+
+
+7. RESPONSE SHAPE
+-----------------
+
+Most successful responses use sendResponse and look like this:
+
+  {
+    "message": "...",
+    "data": {
+      "data": ...,
+      "pagination": ...
+    },
+    "status": "success",
+    "success": true
+  }
+
+Errors are handled by the global error handler and usually look like this:
+
+  {
+    "message": "...",
+    "status": "fail or error",
+    "success": false,
+    "data": null,
+    "stack": "only shown in development"
+  }
+
+
+8. COMMON DEVELOPMENT COMMANDS
+------------------------------
+
+Install dependencies:
+
+  npm install
+
+Run dev server:
+
+  npm run dev
+
+Compile TypeScript:
+
+  npm run build
+
+Run compiled server:
+
+  npm start
+
+
+9. IMPORTANT NOTES
+------------------
+
+- .env is ignored by git.
+- There are both package-lock.json and yarn.lock files. Choose one package
+  manager for the project to avoid dependency version confusion.
+- uploads/ is used as temporary storage before Cloudinary upload.
+- dist/ is generated output from TypeScript build.
+- Some write routes are currently not protected by auth middleware. Review route
+  security before using this in production.

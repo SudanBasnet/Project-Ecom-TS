@@ -1,0 +1,389 @@
+PROJECT ECOM SERVER - PACKAGE USAGE
+===================================
+
+This file explains what each package in package.json is used for in this
+backend project.
+
+
+1. PACKAGE MANAGER NOTES
+------------------------
+
+This project currently has both:
+
+  package-lock.json
+  yarn.lock
+
+That means npm and yarn were both used at some point. It is better to choose one
+package manager and keep only one lock file, because two lock files can create
+different dependency versions on different machines.
+
+The commands in package.json are npm commands:
+
+  npm install
+  npm run dev
+  npm run build
+  npm start
+
+
+2. SCRIPTS
+----------
+
+dev
+  Command:
+    ts-node-dev --transpile-only --respawn ./src/server.ts
+
+  Usage:
+    npm run dev
+
+  Meaning:
+    Starts the TypeScript server directly from src/server.ts during development.
+    It restarts automatically when files change.
+
+build
+  Command:
+    tsc
+
+  Usage:
+    npm run build
+
+  Meaning:
+    Compiles TypeScript files from src/ into JavaScript files in dist/.
+
+start
+  Command:
+    node ./dist/server.js
+
+  Usage:
+    npm start
+
+  Meaning:
+    Runs the compiled production/server build from dist/server.js.
+
+
+3. MAIN DEPENDENCIES
+--------------------
+
+bcryptjs
+  Version:
+    ^3.0.3
+
+  Purpose:
+    Used for password hashing and password comparison.
+
+  Used in:
+    src/utils/bcrypt.utils.ts
+
+  Example project usage:
+    hashPassword(password)
+    comparepassword(password, user.password)
+
+  Why needed:
+    User passwords should never be stored as plain text. bcryptjs hashes them
+    before saving to MongoDB.
+
+
+cloudinary
+  Version:
+    ^2.10.0
+
+  Purpose:
+    Used for uploading and deleting image files in Cloudinary.
+
+  Used in:
+    src/config/cloudinary.config.ts
+    src/utils/cloudinary.utils.ts
+
+  Example project usage:
+    cloudinary.uploader.upload(...)
+    cloudinary.uploader.destroy(...)
+
+  Why needed:
+    Product images, category images, and profile images are stored remotely
+    instead of keeping them only in the local uploads folder.
+
+
+cookie-parser
+  Version:
+    ^1.4.7
+
+  Purpose:
+    Reads cookies from incoming requests.
+
+  Used in:
+    src/app.ts
+    src/middlewares/auth.middleware.ts
+
+  Example project usage:
+    app.use(cookieParser())
+    req.cookies["access_token"]
+
+  Why needed:
+    The login route stores the JWT in a cookie named access_token. Protected
+    routes read that cookie to authenticate the user.
+
+
+dotenv
+  Version:
+    ^17.4.2
+
+  Purpose:
+    Loads environment variables from .env.
+
+  Used in:
+    src/config/env.config.ts
+
+  Example project usage:
+    import "dotenv/config"
+    process.env.DB_URI
+
+  Why needed:
+    Secrets and environment-specific settings should not be hardcoded in source
+    code.
+
+
+express
+  Version:
+    ^5.2.1
+
+  Purpose:
+    Main web framework for creating the API server, routes, requests, responses,
+    and middleware.
+
+  Used in:
+    src/app.ts
+    src/routes/*.ts
+    src/controllers/*.ts
+    src/middlewares/*.ts
+
+  Example project usage:
+    express()
+    express.Router()
+    app.use("/api/v1", routes)
+
+  Why needed:
+    Express handles the HTTP API layer of the backend.
+
+
+jsonwebtoken
+  Version:
+    ^9.0.3
+
+  Purpose:
+    Creates and verifies JWT access tokens.
+
+  Used in:
+    src/utils/jwt.utils.ts
+    src/middlewares/auth.middleware.ts
+
+  Example project usage:
+    jwt.sign(payload, JWT_SECRET)
+    jwt.verify(token, JWT_SECRET)
+
+  Why needed:
+    After login, users need a token so protected routes can identify them.
+
+
+mongoose
+  Version:
+    ^9.6.2
+
+  Purpose:
+    MongoDB object modeling library.
+
+  Used in:
+    src/config/db.config.ts
+    src/models/*.ts
+    several controllers for ObjectId validation and queries
+
+  Example project usage:
+    mongoose.connect(DB_URI)
+    mongoose.model(...)
+    Model.findOne(...)
+    Model.create(...)
+
+  Why needed:
+    The project stores users, products, categories, brands, carts, and wishlists
+    in MongoDB.
+
+
+multer
+  Version:
+    ^2.1.1
+
+  Purpose:
+    Handles multipart/form-data file uploads.
+
+  Used in:
+    src/middlewares/multer.middleware.ts
+    src/routes/auth.routes.ts
+    src/routes/category.routes.ts
+    src/routes/product.routes.ts
+
+  Example project usage:
+    upload.single("profile_image")
+    upload.single("image")
+    upload.fields([{ name: "cover_image" }, { name: "images" }])
+
+  Why needed:
+    The API receives image files before sending them to Cloudinary.
+
+
+nodemailer
+  Version:
+    ^8.0.8
+
+  Purpose:
+    Sends emails from the backend.
+
+  Used in:
+    src/config/nodemailer.config.ts
+    src/utils/sendEmail.utils.ts
+    src/controllers/auth.controller.ts
+
+  Example project usage:
+    nodemailer.createTransport(...)
+    transporter.sendMail(...)
+
+  Why needed:
+    The login controller sends a login success email to the user.
+
+
+4. DEVELOPMENT DEPENDENCIES
+---------------------------
+
+@types/bcryptjs
+  Purpose:
+    TypeScript type definitions for bcryptjs.
+
+
+@types/cookie-parser
+  Purpose:
+    TypeScript type definitions for cookie-parser.
+
+
+@types/express
+  Purpose:
+    TypeScript type definitions for Express.
+
+
+@types/jsonwebtoken
+  Purpose:
+    TypeScript type definitions for jsonwebtoken.
+
+
+@types/multer
+  Purpose:
+    TypeScript type definitions for Multer.
+
+
+@types/node
+  Purpose:
+    TypeScript type definitions for Node.js built-in APIs like fs, path, and
+    process.
+
+
+@types/nodemailer
+  Purpose:
+    TypeScript type definitions for Nodemailer.
+
+
+ts-node-dev
+  Purpose:
+    Runs TypeScript files directly in development and restarts the server when
+    files change.
+
+  Used by:
+    npm run dev
+
+
+typescript
+  Purpose:
+    TypeScript compiler.
+
+  Used by:
+    npm run build
+
+  Meaning:
+    Converts src/**/*.ts files into JavaScript files inside dist/.
+
+
+5. BUILT-IN NODE MODULES USED
+-----------------------------
+
+These do not need to be installed separately because they come with Node.js.
+
+fs
+  Used for checking, creating, and deleting local files.
+
+  Used in:
+    src/middlewares/multer.middleware.ts
+    src/utils/cloudinary.utils.ts
+
+path
+  Used for building file/folder paths safely.
+
+  Used in:
+    src/middlewares/multer.middleware.ts
+
+
+6. HOW PACKAGES WORK TOGETHER IN THIS PROJECT
+---------------------------------------------
+
+Server startup:
+  dotenv loads .env values.
+  mongoose connects to MongoDB.
+  express starts the API server.
+
+Registration:
+  express receives the request.
+  multer optionally receives profile_image.
+  bcryptjs hashes the password.
+  cloudinary uploads the profile image if provided.
+  mongoose saves the user.
+
+Login:
+  mongoose finds the user.
+  bcryptjs compares the password.
+  jsonwebtoken creates the access token.
+  cookie-parser support lets Express work with cookies.
+  nodemailer sends a login email.
+
+Protected route:
+  cookie-parser reads the access_token cookie.
+  jsonwebtoken verifies the token.
+  auth middleware adds req.user.
+  controller runs the protected action.
+
+Image upload:
+  multer stores the file temporarily in uploads/.
+  cloudinary uploads the file.
+  fs deletes the temporary local file.
+  mongoose stores the Cloudinary URL and public_id.
+
+
+7. INSTALL COMMANDS
+-------------------
+
+Install all packages from package.json:
+
+  npm install
+
+Install a new runtime dependency:
+
+  npm install package-name
+
+Install a new development dependency:
+
+  npm install -D package-name
+
+Run project in development:
+
+  npm run dev
+
+Build project:
+
+  npm run build
+
+Run compiled project:
+
+  npm start
