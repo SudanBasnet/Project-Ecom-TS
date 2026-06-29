@@ -1,3 +1,4 @@
+import nodemailer from "nodemailer";
 import Mail from "nodemailer/lib/mailer";
 import ENV_CONFIG from "../config/env.config";
 import transporter from "../config/nodemailer.config";
@@ -39,7 +40,12 @@ export const sendEmail = async ({
       mailOptions.attachments = attachments;
     }
 
-    await transporter.sendMail(mailOptions);
+    const info = await transporter.sendMail(mailOptions);
+    const previewUrl = nodemailer.getTestMessageUrl(info);
+
+    if (previewUrl) {
+      console.log("Ethereal preview URL:", previewUrl);
+    }
 
     return true;
   } catch (error) {

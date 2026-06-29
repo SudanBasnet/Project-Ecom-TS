@@ -8,8 +8,13 @@ const errorHandler_middleware_1 = require("./middlewares/errorHandler.middleware
 const index_1 = __importDefault(require("./routes/index"));
 const notFound_middleware_1 = require("./middlewares/notFound.middleware");
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
+const cors_1 = __importDefault(require("cors"));
 //!creating express app instance
 const app = (0, express_1.default)();
+//!using cors
+app.use((0, cors_1.default)({
+    origin: "*",
+}));
 //!body parser
 app.use(express_1.default.json({ limit: "10mb" }));
 //!using middlewares
