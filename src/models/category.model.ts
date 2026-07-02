@@ -22,21 +22,19 @@ const categorySchema = new mongoose.Schema<ICategorySchema>(
       trim: true,
       minLength: [25, "minimum 25 char. is required"],
     },
-    image: [
-      {
-        type: {
-          path: {
-            type: String,
-            required: true,
-          },
-          public_id: {
-            type: String,
-            required: true,
-          },
+    image: {
+      type: {
+        path: {
+          type: String,
+          required: true,
         },
-        required: [true, "image is required"],
+        public_id: {
+          type: String,
+          required: true,
+        },
       },
-    ],
+      required: [true, "image is required"],
+    },
   },
   { timestamps: true },
 );

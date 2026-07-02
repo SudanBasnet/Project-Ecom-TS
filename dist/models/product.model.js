@@ -61,7 +61,7 @@ const productSchema = new mongoose_1.default.Schema({
     brand: {
         type: mongoose_1.default.Schema.Types.ObjectId,
         required: [true, "brand is required"],
-        ref: "brand",
+        ref: "Brand",
     },
     new_arrival: {
         type: Boolean,

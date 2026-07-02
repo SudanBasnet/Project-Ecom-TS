@@ -13,7 +13,8 @@ const cors_1 = __importDefault(require("cors"));
 const app = (0, express_1.default)();
 //!using cors
 app.use((0, cors_1.default)({
-    origin: "*",
+    origin: process.env.CLIENT_ORIGIN ?? "http://localhost:3000",
+    credentials: true,
 }));
 //!body parser
 app.use(express_1.default.json({ limit: "10mb" }));

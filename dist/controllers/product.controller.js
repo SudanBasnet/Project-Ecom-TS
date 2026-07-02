@@ -46,7 +46,11 @@ exports.getAll = (0, catchAsync_utils_1.catchAsync)(async (req, res) => {
             filter.price.$lte = Number(maxPrice);
         }
     }
-    const products = await product_model_1.default.find(filter).skip(skip).limit(perPage);
+    const products = await product_model_1.default.find(filter)
+        .populate("category")
+        .populate("brand")
+        .skip(skip)
+        .limit(perPage);
     const count = await product_model_1.default.countDocuments(filter);
     const { total_count, total_pages, current_page, next_page, prev_page } = (0, pagination_utils_1.getPagination)(count, perPage, currPage);
     (0, sendResponse_utils_1.sendResponse)(res, {
@@ -65,7 +69,9 @@ exports.getAll = (0, catchAsync_utils_1.catchAsync)(async (req, res) => {
 //* get by id
 exports.getById = (0, catchAsync_utils_1.catchAsync)(async (req, res) => {
     const { id } = req.params;
-    const product = await product_model_1.default.findOne({ _id: id });
+    const product = await product_model_1.default.findOne({ _id: id })
+        .populate("category")
+        .populate("brand");
     if (!product) {
         throw new appError_utils_1.default(`product ${id} not found `, 404);
     }
@@ -217,7 +223,9 @@ exports.remove = (0, catchAsync_utils_1.catchAsync)(async (req, res) => {
 //* get by category
 exports.getByCategory = (0, catchAsync_utils_1.catchAsync)(async (req, res) => {
     const { id } = req.params;
-    const products = await product_model_1.default.find({ category: id });
+    const products = await product_model_1.default.find({ category: id })
+        .populate("category")
+        .populate("brand");
     (0, sendResponse_utils_1.sendResponse)(res, {
         message: `Product by category ${id} fetched`,
         statusCode: 200,
@@ -226,7 +234,9 @@ exports.getByCategory = (0, catchAsync_utils_1.catchAsync)(async (req, res) => {
 });
 //* get all featured products
 exports.getFeaturedProducts = (0, catchAsync_utils_1.catchAsync)(async (req, res) => {
-    const products = await product_model_1.default.find({ featured: true });
+    const products = await product_model_1.default.find({ featured: true })
+        .populate("category")
+        .populate("brand");
     (0, sendResponse_utils_1.sendResponse)(res, {
         message: `All featured Products fetched`,
         statusCode: 200,
@@ -235,7 +245,9 @@ exports.getFeaturedProducts = (0, catchAsync_utils_1.catchAsync)(async (req, res
 });
 //* get all new arrivals
 exports.getNewProducts = (0, catchAsync_utils_1.catchAsync)(async (req, res) => {
-    const products = await product_model_1.default.find({ new_arrival: true });
+    const products = await product_model_1.default.find({ new_arrival: true })
+        .populate("category")
+        .populate("brand");
     (0, sendResponse_utils_1.sendResponse)(res, {
         message: `All new arrivals  fetched`,
         statusCode: 200,

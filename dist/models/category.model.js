@@ -16,21 +16,19 @@ const categorySchema = new mongoose_1.default.Schema({
         trim: true,
         minLength: [25, "minimum 25 char. is required"],
     },
-    image: [
-        {
-            type: {
-                path: {
-                    type: String,
-                    required: true,
-                },
-                public_id: {
-                    type: String,
-                    required: true,
-                },
+    image: {
+        type: {
+            path: {
+                type: String,
+                required: true,
             },
-            required: [true, "image is required"],
+            public_id: {
+                type: String,
+                required: true,
+            },
         },
-    ],
+        required: [true, "image is required"],
+    },
 }, { timestamps: true });
 //? model
 const Category = mongoose_1.default.model("category", categorySchema);

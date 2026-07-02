@@ -57,7 +57,11 @@ export const getAll = catchAsync(async (req: Request, res: Response) => {
       filter.price.$lte = Number(maxPrice);
     }
   }
-  const products = await Product.find(filter).skip(skip).limit(perPage);
+  const products = await Product.find(filter)
+    .populate("category")
+    .populate("brand")
+    .skip(skip)
+    .limit(perPage);
   const count = await Product.countDocuments(filter);
   const { total_count, total_pages, current_page, next_page, prev_page } =
     getPagination(count, perPage, currPage);
@@ -78,7 +82,9 @@ export const getAll = catchAsync(async (req: Request, res: Response) => {
 //* get by id
 export const getById = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const product = await Product.findOne({ _id: id });
+  const product = await Product.findOne({ _id: id })
+    .populate("category")
+    .populate("brand");
 
   if (!product) {
     throw new AppError(`product ${id} not found `, 404);
@@ -306,7 +312,9 @@ export const remove = catchAsync(async (req: Request, res: Response) => {
 //* get by category
 export const getByCategory = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const products = await Product.find({ category: id });
+  const products = await Product.find({ category: id })
+    .populate("category")
+    .populate("brand");
 
   sendResponse(res, {
     message: `Product by category ${id} fetched`,
@@ -317,7 +325,9 @@ export const getByCategory = catchAsync(async (req: Request, res: Response) => {
 //* get all featured products
 export const getFeaturedProducts = catchAsync(
   async (req: Request, res: Response) => {
-    const products = await Product.find({ featured: true });
+    const products = await Product.find({ featured: true })
+      .populate("category")
+      .populate("brand");
 
     sendResponse(res, {
       message: `All featured Products fetched`,
@@ -330,7 +340,9 @@ export const getFeaturedProducts = catchAsync(
 //* get all new arrivals
 export const getNewProducts = catchAsync(
   async (req: Request, res: Response) => {
-    const products = await Product.find({ new_arrival: true });
+    const products = await Product.find({ new_arrival: true })
+      .populate("category")
+      .populate("brand");
 
     sendResponse(res, {
       message: `All new arrivals  fetched`,
