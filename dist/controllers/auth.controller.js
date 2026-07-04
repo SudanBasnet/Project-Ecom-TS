@@ -96,6 +96,7 @@ exports.login = (0, catchAsync_utils_1.catchAsync)(async (req, res) => {
         maxAge: parseInt(env_config_1.default.cookie_exp ?? "7") * 24 * 60 * 1000,
         secure: env_config_1.default.node_env === "development" ? false : true,
         sameSite: env_config_1.default.node_env === "development" ? "lax" : "none",
+        path: "/",
     });
     //* success response
     (0, sendResponse_utils_1.sendResponse)(res, {

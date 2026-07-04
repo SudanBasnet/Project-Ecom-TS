@@ -6,14 +6,26 @@ import appError from "./utils/appError.utils";
 import { notFound } from "./middlewares/notFound.middleware";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import ENV_CONFIG from "./config/env.config";
 
 //!creating express app instance
 const app = express();
 
+const allowedOrigins = ENV_CONFIG.allow_origins
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 //!using cors
 app.use(
   cors({
-    origin: process.env.CLIENT_ORIGIN ?? "http://localhost:3000",
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new appError("Cors error", 400));
+    },
     credentials: true,
   }),
 );

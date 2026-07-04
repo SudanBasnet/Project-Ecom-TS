@@ -6,14 +6,25 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const errorHandler_middleware_1 = require("./middlewares/errorHandler.middleware");
 const index_1 = __importDefault(require("./routes/index"));
+const appError_utils_1 = __importDefault(require("./utils/appError.utils"));
 const notFound_middleware_1 = require("./middlewares/notFound.middleware");
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const cors_1 = __importDefault(require("cors"));
+const env_config_1 = __importDefault(require("./config/env.config"));
 //!creating express app instance
 const app = (0, express_1.default)();
+const allowedOrigins = env_config_1.default.allow_origins
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
 //!using cors
 app.use((0, cors_1.default)({
-    origin: process.env.CLIENT_ORIGIN ?? "http://localhost:3000",
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+        return callback(new appError_utils_1.default("Cors error", 400));
+    },
     credentials: true,
 }));
 //!body parser

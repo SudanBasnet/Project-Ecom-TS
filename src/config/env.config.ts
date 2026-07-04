@@ -21,5 +21,8 @@ const ENV_CONFIG = {
   smtp_port: process.env.SMTP_PORT!!,
   smtp_user: process.env.SMTP_USER!!,
   smtp_pass: process.env.SMTP_PASS!!,
+  //! origins
+  allow_origins:
+    process.env.ALLOW_ORIGINS ?? process.env.CLIENT_ORIGIN ?? "http://localhost:3000",
 };
 export default ENV_CONFIG;
