@@ -1,12 +1,12 @@
 import express from "express";
 import {
   changeProfilePicture,
+  getProfile,
   login,
   register,
 } from "../controllers/auth.controller";
 import { multerUploader } from "../middlewares/multer.middleware";
 import { authenticate } from "../middlewares/auth.middleware";
-import { Role } from "../types/enum.types";
 import { All_Users } from "../types/enum.types";
 
 const router = express.Router();
@@ -21,10 +21,12 @@ router.post("/login", login);
 
 //! change profile image
 router.put(
-  "/change-profile-image/:id",
+  "/change-profile-image",
   upload.single("profile_image"),
   authenticate(All_Users),
   changeProfilePicture,
 );
+
+router.get("/me", authenticate(All_Users), getProfile);
 
 export default router;

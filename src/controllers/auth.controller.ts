@@ -93,7 +93,7 @@ export const login = catchAsync(async (req: Request, res: Response) => {
   };
   const access_token = generateJwtToken(payload);
 
-  await sendEmail({
+  void sendEmail({
     to: user.email,
     subject: `Welcome ${user.full_name}`,
     html: generateLoginSuccessEmailHtml(req, {
@@ -101,7 +101,10 @@ export const login = catchAsync(async (req: Request, res: Response) => {
       _id: user._id,
       email: user.email,
     }),
+  }).catch((error) => {
+    console.error("Failed to send login notification email:", error);
   });
+
   //* send access  token in cookie
 
   res.cookie("access_token", access_token, {
@@ -173,5 +176,22 @@ export const changeProfilePicture = catchAsync(
 );
 
 //! get profile
+export const getProfile = catchAsync(async (req: Request, res: Response) => {
+  const user = await User.findOne({
+    _id: req.user?._id,
+    email: req.user?.email,
+  });
+
+  if (!user) {
+    throw new AppError("user account not found", 400);
+  }
+
+  //! send success response
+  sendResponse(res, {
+    message: "profile fetched",
+    data: user,
+    statusCode: 200,
+  });
+});
 
 //! change password

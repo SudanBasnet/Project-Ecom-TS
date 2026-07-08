@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.changeProfilePicture = exports.login = exports.register = void 0;
+exports.getProfile = exports.changeProfilePicture = exports.login = exports.register = void 0;
 const user_model_1 = __importDefault(require("../models/user.model"));
 const appError_utils_1 = __importDefault(require("../utils/appError.utils"));
 const sendResponse_utils_1 = require("../utils/sendResponse.utils");
@@ -81,7 +81,7 @@ exports.login = (0, catchAsync_utils_1.catchAsync)(async (req, res) => {
         role: user.role,
     };
     const access_token = (0, jwt_utils_1.generateJwtToken)(payload);
-    await (0, sendEmail_utils_1.sendEmail)({
+    void (0, sendEmail_utils_1.sendEmail)({
         to: user.email,
         subject: `Welcome ${user.full_name}`,
         html: (0, email_utils_1.generateLoginSuccessEmailHtml)(req, {
@@ -89,6 +89,8 @@ exports.login = (0, catchAsync_utils_1.catchAsync)(async (req, res) => {
             _id: user._id,
             email: user.email,
         }),
+    }).catch((error) => {
+        console.error("Failed to send login notification email:", error);
     });
     //* send access  token in cookie
     res.cookie("access_token", access_token, {
@@ -145,4 +147,19 @@ exports.changeProfilePicture = (0, catchAsync_utils_1.catchAsync)(async (req, re
     });
 });
 //! get profile
+exports.getProfile = (0, catchAsync_utils_1.catchAsync)(async (req, res) => {
+    const user = await user_model_1.default.findOne({
+        _id: req.user?._id,
+        email: req.user?.email,
+    });
+    if (!user) {
+        throw new appError_utils_1.default("user account not found", 400);
+    }
+    //! send success response
+    (0, sendResponse_utils_1.sendResponse)(res, {
+        message: "profile fetched",
+        data: user,
+        statusCode: 200,
+    });
+});
 //! change password

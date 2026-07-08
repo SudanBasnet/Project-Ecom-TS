@@ -15,5 +15,6 @@ router.post("/register", upload.single("profile_image"), auth_controller_1.regis
 //! login user
 router.post("/login", auth_controller_1.login);
 //! change profile image
-router.put("/change-profile-image/:id", upload.single("profile_image"), (0, auth_middleware_1.authenticate)(enum_types_1.All_Users), auth_controller_1.changeProfilePicture);
+router.put("/change-profile-image", upload.single("profile_image"), (0, auth_middleware_1.authenticate)(enum_types_1.All_Users), auth_controller_1.changeProfilePicture);
+router.get("/me", (0, auth_middleware_1.authenticate)(enum_types_1.All_Users), auth_controller_1.getProfile);
 exports.default = router;
