@@ -10,7 +10,6 @@ export const authenticate = (roles?: Role[]) => {
       //! get token from req cookie
       const cookies = req.cookies;
       const access_token = cookies["access_token"];
-      console.log(access_token);
 
       if (!access_token) {
         throw new appError("Unauthorized. Access denied", 401);
