@@ -3,6 +3,7 @@ import {
   changeProfilePicture,
   getProfile,
   login,
+  logout,
   register,
 } from "../controllers/auth.controller";
 import { multerUploader } from "../middlewares/multer.middleware";
@@ -28,5 +29,6 @@ router.put(
 );
 
 router.get("/me", authenticate(All_Users), getProfile);
+router.get("/logout", authenticate(All_Users), logout);
 
 export default router;

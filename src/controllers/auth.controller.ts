@@ -194,4 +194,20 @@ export const getProfile = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+//* logout
+export const logout = catchAsync(async (_req: Request, res: Response) => {
+  res.clearCookie("access_token", {
+    httpOnly: ENV_CONFIG.node_env === "development" ? false : true,
+    secure: ENV_CONFIG.node_env === "development" ? false : true,
+    sameSite: ENV_CONFIG.node_env === "development" ? "lax" : "none",
+    path: "/",
+  });
+
+  sendResponse(res, {
+    message: "Logged out successfully",
+    statusCode: 200,
+    data: null,
+  });
+});
+
 //! change password
