@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "ts-node-dev --transpile-only --respawn ./src/server.ts",
     "build": "tsc",
+    "seed:catalog": "ts-node --transpile-only ./src/scripts/seedCatalog.ts",
     "start": "node ./dist/server.js"
   },
   "keywords": [],

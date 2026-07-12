@@ -6,7 +6,7 @@ const ATLAS_FALLBACK_HOSTS = [
   "ac-pwyyh3p-shard-00-02.lmyqm5s.mongodb.net:27017",
 ].join(",");
 
-const getAtlasFallbackUri = (dbUri: string) => {
+export const getAtlasFallbackUri = (dbUri: string) => {
   if (!dbUri.startsWith("mongodb+srv://")) return null;
 
   const url = new URL(dbUri);
