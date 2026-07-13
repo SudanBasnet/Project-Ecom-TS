@@ -13,14 +13,15 @@ const cors_1 = __importDefault(require("cors"));
 const env_config_1 = __importDefault(require("./config/env.config"));
 //!creating express app instance
 const app = (0, express_1.default)();
+const normalizeOrigin = (origin) => origin.trim().replace(/\/+$/, "");
 const allowedOrigins = env_config_1.default.allow_origins
     .split(",")
-    .map((origin) => origin.trim())
+    .map(normalizeOrigin)
     .filter(Boolean);
 //!using cors
 app.use((0, cors_1.default)({
     origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
+        if (!origin || allowedOrigins.includes(normalizeOrigin(origin))) {
             return callback(null, true);
         }
         return callback(new appError_utils_1.default("Cors error", 400));

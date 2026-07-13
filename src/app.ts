@@ -11,16 +11,18 @@ import ENV_CONFIG from "./config/env.config";
 //!creating express app instance
 const app = express();
 
+const normalizeOrigin = (origin: string) => origin.trim().replace(/\/+$/, "");
+
 const allowedOrigins = ENV_CONFIG.allow_origins
   .split(",")
-  .map((origin) => origin.trim())
+  .map(normalizeOrigin)
   .filter(Boolean);
 
 //!using cors
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin || allowedOrigins.includes(normalizeOrigin(origin))) {
         return callback(null, true);
       }
 
