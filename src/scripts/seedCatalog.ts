@@ -5,6 +5,7 @@ import Category from "../models/category.model";
 import Product from "../models/product.model";
 import { getAtlasFallbackUri } from "../config/db.config";
 import Article from "../models/article.model";
+import Cart from "../models/cart.model";
 
 const image = (path: string, publicId: string) => ({
   path,
@@ -115,6 +116,7 @@ const seedCatalog = async () => {
   }
 
   await Product.deleteMany({});
+  await Cart.deleteMany({});
   await Category.deleteMany({});
   await Brand.deleteMany({});
   await Article.deleteMany({});

@@ -29,6 +29,24 @@ const getOrCreateCart = async (userId: string | mongoose.Types.ObjectId) => {
     });
   }
 
+  const productIds = cart.items.map((item: any) => item.product);
+  const existingProducts = await Product.find({
+    _id: { $in: productIds },
+  })
+    .select("_id")
+    .lean();
+  const existingProductIds = new Set(
+    existingProducts.map((product) => product._id.toString()),
+  );
+  const validItems = cart.items.filter((item: any) =>
+    existingProductIds.has(item.product.toString()),
+  );
+
+  if (validItems.length !== cart.items.length) {
+    cart.set("items", validItems);
+    await cart.save();
+  }
+
   return cart as any;
 };
 

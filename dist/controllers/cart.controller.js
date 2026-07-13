@@ -26,6 +26,18 @@ const getOrCreateCart = async (userId) => {
             items: [],
         });
     }
+    const productIds = cart.items.map((item) => item.product);
+    const existingProducts = await product_model_1.default.find({
+        _id: { $in: productIds },
+    })
+        .select("_id")
+        .lean();
+    const existingProductIds = new Set(existingProducts.map((product) => product._id.toString()));
+    const validItems = cart.items.filter((item) => existingProductIds.has(item.product.toString()));
+    if (validItems.length !== cart.items.length) {
+        cart.set("items", validItems);
+        await cart.save();
+    }
     return cart;
 };
 //! get logged in user's cart

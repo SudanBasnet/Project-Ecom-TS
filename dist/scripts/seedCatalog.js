@@ -10,6 +10,7 @@ const category_model_1 = __importDefault(require("../models/category.model"));
 const product_model_1 = __importDefault(require("../models/product.model"));
 const db_config_1 = require("../config/db.config");
 const article_model_1 = __importDefault(require("../models/article.model"));
+const cart_model_1 = __importDefault(require("../models/cart.model"));
 const image = (path, publicId) => ({
     path,
     public_id: `seed/${publicId}`,
@@ -113,6 +114,7 @@ const seedCatalog = async () => {
         await mongoose_1.default.connect(fallbackUri);
     }
     await product_model_1.default.deleteMany({});
+    await cart_model_1.default.deleteMany({});
     await category_model_1.default.deleteMany({});
     await brand_model_1.default.deleteMany({});
     await article_model_1.default.deleteMany({});
